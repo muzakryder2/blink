@@ -140,7 +140,7 @@ export const App = () => {
 
   useEffect(() => {
     fetchHistory();
-  }, [copied]);
+  }, []);
 
   const shorten = async (event) => {
     event.preventDefault();
