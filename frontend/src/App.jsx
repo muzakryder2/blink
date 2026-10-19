@@ -172,7 +172,7 @@ export const App = () => {
 
   const copyLink = async () => {
     if (!shortUrl) return;
-    await navigator.clipboard?.writeText(`${BASE_URL}/${shortUrl}`);
+    await navigator.clipboard?.writeText(shortUrl.fullURL);
     await fetchHistory();
     setCopied(true);
   };
