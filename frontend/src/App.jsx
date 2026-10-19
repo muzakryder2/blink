@@ -166,6 +166,7 @@ export const App = () => {
     } catch (err) {
       console.log("Error creating short URL", err.message);
     }
+    fetchHistory();
     setCopied(false);
   };
 
@@ -174,7 +175,7 @@ export const App = () => {
     await navigator.clipboard?.writeText(
       `${window.location.origin}/api/${shortUrl}`,
     );
-    await fetchHistory();
+    fetchHistory();
     setCopied(true);
   };
 
