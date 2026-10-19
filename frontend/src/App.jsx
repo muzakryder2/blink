@@ -171,7 +171,7 @@ export const App = () => {
   const copyLink = async () => {
     if (!shortUrl) return;
     await navigator.clipboard?.writeText(
-      `${window.location.origin}/${shortUrl}`,
+      `${window.location.origin}/api/${shortUrl}`,
     );
     setCopied(true);
   };
@@ -300,7 +300,7 @@ export const App = () => {
                           target="_blank"
                           className="underline text-emerald-300"
                         >
-                          {window.location.origin}/{item.shortURL}
+                          {window.location.origin}/api/{item.shortURL}
                         </a>
                       </td>
                       <td className="text-center p-2 border text-white border-emerald-300">
