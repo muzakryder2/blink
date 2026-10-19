@@ -173,7 +173,7 @@ export const App = () => {
   const copyLink = async () => {
     if (!shortUrl) return;
     await navigator.clipboard?.writeText(
-      `${window.location.origin}/${shortUrl}`,
+      `${window.location.origin}/api/${shortUrl}`,
     );
     await fetchHistory();
     setCopied(true);
