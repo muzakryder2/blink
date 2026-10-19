@@ -296,7 +296,7 @@ export const App = () => {
                       </td>
                       <td className="text-left p-2 border border-emerald-300">
                         <a
-                          href={`${window.location.origin}/${item.shortURL}`}
+                          href={`${window.location.origin}/api/${item.shortURL}`}
                           target="_blank"
                           className="underline text-emerald-300"
                         >
