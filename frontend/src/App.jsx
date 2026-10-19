@@ -175,7 +175,7 @@ export const App = () => {
     await navigator.clipboard?.writeText(
       `${window.location.origin}/api/${shortUrl}`,
     );
-    fetchHistory();
+
     setCopied(true);
   };
 
