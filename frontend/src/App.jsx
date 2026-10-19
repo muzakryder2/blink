@@ -140,7 +140,7 @@ export const App = () => {
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [copied]);
 
   const shorten = async (event) => {
     event.preventDefault();
@@ -166,7 +166,6 @@ export const App = () => {
     } catch (err) {
       console.log("Error creating short URL", err.message);
     }
-    await fetchHistory();
     setCopied(false);
   };
 
