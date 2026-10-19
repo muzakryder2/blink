@@ -127,17 +127,18 @@ export const App = () => {
   const [copied, setCopied] = useState(false);
   const BASE_URL = "/api";
 
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/history`);
+      const data = await response.json();
+      setHistory(data.data);
+    } catch (error) {
+      console.error("Error fetching link history:", error);
+      setHistory([]);
+    }
+  };
+
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/history`);
-        const data = await response.json();
-        setHistory(data.data);
-      } catch (error) {
-        console.error("Error fetching link history:", error);
-        setHistory([]);
-      }
-    };
     fetchHistory();
   }, []);
 
@@ -165,15 +166,43 @@ export const App = () => {
     } catch (err) {
       console.log("Error creating short URL", err.message);
     }
+    await fetchHistory();
     setCopied(false);
   };
 
   const copyLink = async () => {
     if (!shortUrl) return;
-    await navigator.clipboard?.writeText(
-      `${window.location.origin}/api/${shortUrl}`,
-    );
+    await navigator.clipboard?.writeText(`${BASE_URL}/${shortUrl}`);
+    await fetchHistory();
     setCopied(true);
+  };
+
+  const resetCount = async (shortURL) => {
+    const res = await fetch(`${BASE_URL}/${shortURL}`, {
+      method: "POST",
+    });
+    const data = await res.json();
+    setHistory(data.data);
+  };
+
+  const deleteURL = async (shortURL) => {
+    const res = await fetch(`${BASE_URL}/${shortURL}`, { method: "DELETE" });
+    const data = await res.json();
+    setHistory(data.data);
+  };
+
+  const handleRedirect = async (shortURL) => {
+    setHistory((prevHistory) =>
+      prevHistory.map((item) => {
+        if (item.shortURL === shortURL) {
+          return { ...item, clicks: item.clicks + 1 };
+        } else {
+          return item;
+        }
+      }),
+    );
+    const redirectUrl = `${window.location.origin}/api/${shortURL}`;
+    window.open(redirectUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -281,10 +310,13 @@ export const App = () => {
                       Full URL
                     </th>
                     <th className="text-center p-2 border border-emerald-300 text-white">
-                      Short URL
+                      Short URL Slug
                     </th>
                     <th className="text-center p-2 border border-emerald-300 text-white">
                       Clicks
+                    </th>
+                    <th className="text-center p-2 border border-emerald-300 text-white">
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -295,16 +327,30 @@ export const App = () => {
                         {item.fullURL}
                       </td>
                       <td className="text-left p-2 border border-emerald-300">
-                        <a
-                          href={`${window.location.origin}/api/${item.shortURL}`}
-                          target="_blank"
-                          className="underline text-emerald-300"
+                        <p
+                          className="underline text-emerald-300 cursor-pointer"
+                          onClick={() => handleRedirect(item.shortURL)}
                         >
-                          {window.location.origin}/api/{item.shortURL}
-                        </a>
+                          <span>{item.shortURL}</span>
+                        </p>
                       </td>
                       <td className="text-center p-2 border text-white border-emerald-300">
                         {item.clicks}
+                      </td>
+                      <td className="text-center p-2 border text-white border-emerald-300">
+                        <span
+                          className="text-amber-300 cursor-pointer"
+                          onClick={() => resetCount(item.shortURL)}
+                        >
+                          Reset Count
+                        </span>
+                        {" | "}
+                        <span
+                          className="text-rose-300 cursor-pointer"
+                          onClick={() => deleteURL(item.shortURL)}
+                        >
+                          Delete URL
+                        </span>
                       </td>
                     </tr>
                   ))}

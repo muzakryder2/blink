@@ -23,16 +23,25 @@ router.get("/history", async (req, res) => {
 });
 
 router.get("/:shortURL", async (req, res) => {
-  const shortURL = await URL.findOne({ shortURL: req.params.shortURL });
-  if (!shortURL)
-    return res
-      .status(404)
-      .json({ success: false, message: "short URL not found" });
+  try {
+    const shortURL = await URL.findOne({ shortURL: req.params.shortURL });
+    if (!shortURL)
+      return res
+        .status(404)
+        .json({ success: false, message: "short URL not found" });
 
-  shortURL.clicks += 1;
-  await shortURL.save();
+    shortURL.clicks += 1;
+    await shortURL.save();
 
-  res.redirect(shortURL.fullURL);
+    res.redirect(shortURL.fullURL);
+  } catch (err) {
+    console.error(`Error redirecting URL`, err);
+    res.status(500).json({
+      success: false,
+      message: "Error redirecting URL",
+      error: err.message,
+    });
+  }
 });
 
 router.post("/", async (req, res) => {
@@ -58,13 +67,62 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
-  const url = await URL.findOne({ _id: req.params.id });
-  if (!url)
-    return res.status(404).json({ success: false, message: "URL not found" });
+router.post("/:shortURL", async (req, res) => {
+  try {
+    const shortURL = await URL.findOne({ shortURL: req.params.shortURL });
+    if (!shortURL)
+      return res
+        .status(404)
+        .json({ success: false, message: "short URL not found" });
 
-  await url.deleteOne();
-  res.status(200).json({ success: true, message: "URL deleted successfully" });
+    shortURL.clicks = 0;
+    await shortURL.save();
+
+    const data = await URL.find().select({
+      _id: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      __v: 0,
+    });
+
+    res.status(200).json({ success: true, data: data });
+  } catch (err) {
+    console.error(`Error clearing counter`, err);
+    res.status(500).json({
+      success: false,
+      message: "Error clearing counter",
+      error: err.message,
+    });
+  }
+});
+
+router.delete("/:shortURL", async (req, res) => {
+  try {
+    const shortURL = await URL.findOne({ shortURL: req.params.shortURL });
+
+    if (!shortURL)
+      return res
+        .status(404)
+        .json({ success: false, message: "short URL not found" });
+
+    await shortURL.deleteOne();
+
+    const data = await URL.find().select({
+      _id: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      __v: 0,
+    });
+
+    res.status(200).json({ success: true, data: data });
+  } catch (err) {
+    console.error(`Error clearing counter`, err);
+    res.status(500).json({
+      success: false,
+      message: "Error clearing counter",
+      error: err.message,
+    });
+  }
 });
 
 export default router;
